@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: l+ZrPjOzxlQLRbtMsOw/i2ec3ylJzZknWjiBTkgg5+/ZvyQd8FY7UnCMIHMKk/hInWriXxl1Au+ykLmmW8Hr44Vy5iMGuAUS6qFNPR0bE8f27eMHsg/tT4IQJ4A0Y7sVMkgtruyc+aDbPwi4mHt70mi/yq7w0UWfCCvq/c1Q8q+VB6pR+aBG4rN9F45gJes06zjs5rT6GZLnzuHi6qP5ltFPRb0j/SHddrjAQghHM6DFRT67VPGneq5UBQZ3nxLY9Jr2TpzhK814c5o19XCD/tuAmy59/GkGD71s3PS+rI5ZuR95BcJwP8PcbNdZWruprhnDxd7pG8d7JggmKM+V2wmgJOo5d7ENTzJTYZKCzxU0RkUzIpg2BoChE/5MKAMII1sFJG66UJMsHkED8TDMku0qf6dNyxjUt0NvER8WEO7uvkVqnS3PWMvBGhDEfr8Kj26AbGdg+vfnv4Na8wlvgr1P5BGwsYQ3hCwto2MBGiulkqtSORrsVsQsAYaqSsINlQPli+G1PkpZiL6LQOOSOlsQTwEhXKMT1S3yEx3kELSK4nzt8QDVhKMnr9VQIHn8on4Rm76gg4/mljLdOImWcPcuttpiXrKyz+Dnvwbg02LOH9tZ9WMujpl9T8ffbTpO5OSJvZHpuN/nsPSlhzlFolLww1o84FIbmD5hAQ2X7NQ=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Shaving-of-Shagpat-an-Arabian-entertainment-Volume-2_4402
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
